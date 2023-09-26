@@ -139,7 +139,7 @@ void Request::parsseRequest()
 {
     size_t nextPos = 0;
     parsseMethod(nextPos);
-    if (_error!= 400)
+    if (_error!= 501)
     {
         parssePath_Queries(nextPos); // parse the path and the queries of the request
         if (_error != 403)
@@ -161,7 +161,7 @@ void Request::parsseMethod(size_t &methodPos)
     for (; methodPos < _requestLength && _request[methodPos] != ' '; methodPos++)
         _method += _request[methodPos];
     if (_method != "GET" && _method != "POST" && _method != "DELETE")
-        _error = 400; // method not implemented (not GET, POST or DELETE
+        _error = 501; // method not implemented (not GET, POST or DELETE)
 }
 
 void Request::parssePath_Queries(size_t &URI_Pos)

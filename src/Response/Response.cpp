@@ -173,20 +173,24 @@ int Response::findRouting(Request &req)
     _autoindex = _config.getAutoindex();
     _errorPages = _config.getErrorPages();
     _methods = _config.getMethods();
-    _filePath = constructFilePath(req.getPath(), _root, _index);
 
-    if (_autoindex)
+    _filePath = constructFilePath(req.getPath(), _root, "");
+    if (isDirectory(_filePath.c_str()))
+        _filePath = constructFilePath(req.getPath(), _root, _index);
+    if (_filePath[_filePath.length() - 1] == '/')
+        _filePath = _filePath.substr(0, _filePath.length() - 1);
+    if (_autoindex && _index.empty())
     {
         _filePath = constructFilePath(req.getPath(), _root, "");
+        if (isDirectory(_filePath.c_str()))
+            _filePath = constructFilePath(req.getPath(), _root, _index);
+        if (_filePath[_filePath.length() - 1] == '/') {
+            _filePath = _filePath.substr(0, _filePath.length() - 1);
+        }
         _isTextStream = true;
         return CONTINUE;
     }
-    else
-    {
-        _filePath = constructFilePath(req.getPath(), _root, _index);
-        _isTextStream = false;
-    }
-
+    
     return CONTINUE;
 }
 
@@ -250,6 +254,7 @@ void Response::handleError(int code)
             handleDefaultError(code);
             return;
         }
+
         _fd = open(errorPage.c_str(), O_RDONLY);
         if (_fd == -1)
         {
@@ -320,11 +325,11 @@ void Response::genListing()
 
 
 void Response::InitFile(Request &req) {
+    int routing = findRouting(req);
     _error = req.getError();
     if (_error != 0) {
         throw HTTPException("Request error", _error);
     }
-    int routing = findRouting(req);
     if (checkMethod(req) == ERROR)
         throw HTTPException("Method not allowed", 405);
     if (checkHttpVersion(req) == ERROR)
