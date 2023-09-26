@@ -65,6 +65,9 @@ std::string Response::findStatusCode(int code)
     std::string status_code;
     switch (code)
     {
+        case 200:
+            status_code = "200 OK";
+            break;
         case 201:
             status_code = "201 Created";
             break;
@@ -102,7 +105,6 @@ std::string Response::findStatusCode(int code)
             status_code = "505 HTTP Version Not Supported";
             break;
         default:
-            status_code = "200 OK";
             break;
     }
     return status_code;
@@ -576,7 +578,7 @@ int Response::sendResp(Request &req, CGI *cgi)
     if (_headersSent == false)
     {
         if (_error == 0)
-            _status_code = findStatusCode(0);
+            _status_code = findStatusCode(200);
         ss << "HTTP/1.1 " << _status_code << "\r\n";
         for (std::map<std::string, std::string>::iterator it = _headers.begin(); it != _headers.end(); it++)
         {

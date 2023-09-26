@@ -97,7 +97,7 @@ int CGI::initializeCGIParameters(Request &req, Response &resp) {
     {
       _methods = it->getMethods();
       if (!it->getString(ROOT).empty())
-        _root = it->getString(ROOT);
+        _root = it->getString(ROOT) + (it->getString(ROOT).back() != '/' ? "/" : "");
       _compiler = it->getCompiler();
       _redirect = it->getReturned();
       break;
@@ -279,7 +279,7 @@ int CGI::CGIHandler(Request &req, Response &resp, int clientSocket)
       setenv("REQUEST_URI", req.getPath().c_str(), 1);
       setenv("QUERY_STRING", req.getQueries().c_str(), 1);
       setenv("SCRIPT_NAME", req.getPath().c_str(), 1);
-      setenv("GATEWAY_INTERFACE", "CGI/1.1", 1);
+      setenv("GATEWAY_INTERF", "CGI/1.1", 1);
       setenv("PATH_INFO", req.getPath().c_str(), 1);
       setenv("SCRIPT_NAME", _cgi_path.c_str(), 1);
       setenv("REDIRECT_STATUS", "", 1);
