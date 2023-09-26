@@ -22,8 +22,8 @@ class CGI {
         int initializeCGIParameters(Request &req, Response &resp);
         int  handlePostMethod(Request &req);
         int executeCGIScript(int clientSocket);
-        std::map<std::string, std::string> getCookies() const;
-        std::map<std::string, std::string> parseCookies(std::string cookies);
+        std::vector<std::string> getCookies() const;
+        std::string parseCookies(std::string cookies);
         void redirectURL();
         void checkStatusCode();
         void initHeaders();
@@ -38,7 +38,7 @@ class CGI {
         void parseHeaders(std::string headers);
     private:
         int _fd;
-        std::map<std::string, std::string> _cookies;
+        std::vector<std::string> _cookies;
         std::string _cgifd;
         std::vector<ServerConf> _servers;
         std::string _filename;

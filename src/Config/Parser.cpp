@@ -148,7 +148,7 @@ Location Parser::parseLocationBody()
     bool isCGI = false;
 
     location.setLocationName(parseValue(match("value")._value));
-    if (location.getLocationName()[0] == '\\')
+    if (location.getLocationName()[0] == '*')
         isCGI = true;
     match("{");
     while (!look("}")) {

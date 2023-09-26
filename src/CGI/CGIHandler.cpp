@@ -28,6 +28,7 @@ CGI::CGI(int clientSocket, std::vector<ServerConf> &servers) : _servers(servers)
   _isCgiDone = false;
   _cgiRan = false;
   _fd = 0;
+  _cookies = std::vector<std::string>();
 }
 
 CGI::~CGI()
@@ -87,9 +88,12 @@ int CGI::initializeCGIParameters(Request &req, Response &resp) {
   while (it != resp._config.location.end())
   {
     if (it->getLocationName().empty())
-      return -2;
-    std::string cgiLocation = it->getLocationName().erase(0, 1);
-    if (cgiLocation == extension)
+    {
+      _error_code = 500;
+      return 2;
+    }
+    std::string cgiLocation = it->getLocationName().substr(1);
+    if (cgiLocation == extension && it->getLocationName()[0] == '*')
     {
       _methods = it->getMethods();
       if (!it->getString(ROOT).empty())
@@ -97,6 +101,11 @@ int CGI::initializeCGIParameters(Request &req, Response &resp) {
       _compiler = it->getCompiler();
       _redirect = it->getReturned();
       break;
+    }
+    else if (it == resp._config.location.end())
+    {
+      _error_code = 500;
+      return 2;
     }
     it++;
   }
@@ -121,48 +130,29 @@ int CGI::initializeCGIParameters(Request &req, Response &resp) {
   return 0;
 }
 
-std::map<std::string, std::string> CGI::getCookies() const {
+std::vector<std::string> CGI::getCookies() const
+{
   return _cookies;
 }
 
-std::map<std::string, std::string> CGI::parseCookies(std::string cookisat)
+std::string CGI::parseCookies(std::string cookies)
 {
-  std::string::size_type pos = cookisat.find("Set-Cookie:");
-  if (pos != std::string::npos)
+  std::string setCookie = "Set-Cookie:";
+  std::string::size_type pos = cookies.find(setCookie);
+  while (pos != std::string::npos)
   {
-    cookisat.erase(0, pos + 11);
-    for (std::string::size_type i = 0; i < cookisat.size(); i++)
+    std::string::size_type pos2 = cookies.find("\r\n", pos);
+    if (pos2 != std::string::npos)
     {
-      std::string::size_type pos2 = cookisat.find(";");
-      if (pos2 != std::string::npos)
-      {
-        std::string cookie = cookisat.substr(0, pos2);
-        std::string::size_type pos3 = cookie.find("=");
-        if (pos3 != std::string::npos)
-        {
-          std::string key = cookie.substr(0, pos3);
-          std::string value = cookie.substr(pos3 + 1);
-          _cookies[key] = value;
-          std::cout << "key: " << key << " value: " << value << std::endl;
-          cookisat.erase(0, pos2 + 1);
-        }
-      }
-      else
-      {
-        std::string cookie = cookisat.substr(0, cookisat.find("\r\n"));
-        std::string::size_type pos3 = cookie.find("=");
-        if (pos3 != std::string::npos)
-        {
-          std::string key = cookie.substr(0, pos3);
-          std::string value = cookie.substr(pos3 + 1);
-          _cookies[key] = value;
-          break;
-        }
-      }
+      std::string value = cookies.substr(pos + setCookie.length(), pos2 - pos - setCookie.length());
+      _cookies.push_back(value);
+      cookies.erase(pos, pos2 - pos);
     }
+    pos = cookies.find(setCookie, pos2 + 2);
   }
-  return _cookies;
+  return cookies;
 }
+
 void CGI::parseHeaders(std::string headers)
 {
   std::string headerKey[5] = {"Content-Type", "Content-Length", "Location", "Server", "Connection"};
@@ -221,7 +211,7 @@ int CGI::executeCGIScript(int clientSocket) {
         return -1;
     }
     
-    char buffer[128];
+    char buffer[255];
     std::string body;
     while (fgets(buffer, sizeof(buffer), pipe) != NULL)
         body += buffer;
@@ -240,6 +230,7 @@ int CGI::executeCGIScript(int clientSocket) {
           }
           std::string tmp = body.substr(0, pos);
           tmp += "\r\n\r\n";
+          tmp +=  '\0';
           write(fd, tmp.c_str(), tmp.size());
           close(fd);
           body.erase(0, pos + 4);
@@ -312,10 +303,12 @@ int CGI::CGIHandler(Request &req, Response &resp, int clientSocket)
           _error_code = 500;
         char buffer[128];
         std::string body = "";
-        while (read(fd, buffer, sizeof(buffer)) != 0)
+        while (read(fd, buffer, sizeof(buffer) - 1) != 0){
+          buffer[sizeof(buffer) - 1] = '\0';
           body += buffer;
-        _cookies = parseCookies(body.substr(0, body.find("\r\n\r\n")));
-        parseHeaders(body.substr(0, body.find("\r\n\r\n")));
+        }
+        body = parseCookies(body);
+        parseHeaders(body);
         close(fd);
         unlink(COOKIFILE);
       }

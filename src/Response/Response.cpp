@@ -538,10 +538,12 @@ void    Response::handleCGI() {
             lseek(_fd, 0, SEEK_SET);
             _headers = _cgi->getHeaders();
             _headers["Content-Length"] = std::to_string(_fileSize);
-            std::map<std::string, std::string> cookies = _cgi->getCookies();
-            for (std::map<std::string, std::string>::iterator it = cookies.begin(); it != cookies.end(); it++)
-                _headers["Set-Cookie"] = it->first + "=" + it->second;
-            
+            std::vector<std::string> cookies = _cgi->getCookies();
+            for (std::vector<std::string>::iterator it = cookies.begin(); it != cookies.end(); it++)
+            {
+                _headers["Set-Cookie"] = *it;
+            }
+            _headers["Connection"] = _request.isKeepAlive() ? "keep-alive" : "close";
         }
     }
 }
