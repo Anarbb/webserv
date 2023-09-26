@@ -20,7 +20,6 @@ Server::Server(int port, std::vector<ServerConf> &servers) : _port(port), _serve
     _serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     fcntl(_serverSocket, F_SETFL, O_NONBLOCK);
     if (_serverSocket < 0) {
-        std::cerr << "Error: socket() failed " << strerror(errno) << std::endl;
         return;
     }
     _serverAddress.sin_family = AF_INET;
@@ -28,16 +27,12 @@ Server::Server(int port, std::vector<ServerConf> &servers) : _port(port), _serve
     _serverAddress.sin_port = htons(_port);
 
     if (setsockopt(_serverSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&reuse, sizeof(reuse)) < 0) {
-        std::cerr << "Error: setsockopt() failed" << std::endl;
         return;
     }
     if (setsockopt(_serverSocket, SOL_SOCKET, SO_NOSIGPIPE, (void *)&set, sizeof(int)) < 0) {
-        std::cerr << "Error: setsockopt() failed" << std::endl;
         return;
     }
     if (bind(_serverSocket, (struct sockaddr*)&_serverAddress, sizeof(_serverAddress)) < 0) {
-        std::cerr << "Error: bind() failed" << std::endl;
-        std::cerr << strerror(errno) << std::endl;
         return;
     }
 }
@@ -88,8 +83,6 @@ int Server::getSocket() const {
  */
 int Server::start(void) {
     if (listen(_serverSocket, 1024) < 0) {
-        std::cerr << "Error: listen() failed" << std::endl;
-        std::cerr << strerror(errno) << std::endl;
         return ERROR;
     }
     std::cout << "Server started on port: " << _port << std::endl;
@@ -111,8 +104,6 @@ int Server::handleClients(fd_set& readSet, fd_set& writeSet, fd_set& masterSet) 
     if (FD_ISSET(_serverSocket, &readSet)) {
         int clientSocket = accept(_serverSocket, NULL, NULL);
         if (clientSocket < 0) {
-            std::cerr << "Error: accept() failed" << std::endl;
-            std::cerr << strerror(errno) << std::endl;
             return ERROR;
         }
         acceptClientConnection(clientSocket, masterSet);

@@ -65,11 +65,14 @@ std::string Response::findStatusCode(int code)
     std::string status_code;
     switch (code)
     {
-        case 0:
-            status_code = "200 OK";
-            break;
         case 201:
             status_code = "201 Created";
+            break;
+        case 204:
+            status_code = "204 No Content";
+            break;
+        case 403:
+            status_code = "403 Forbidden";
             break;
         case 400:
             status_code = "400 Bad Request";
@@ -134,7 +137,6 @@ int Response::findRouting(Request &req)
                                       req.getPath().substr(0, idx);
 
             _filePath = constructFilePath(relativePath, _root, "");
-
             if (isDirectory(_filePath.c_str()))
                 _filePath = constructFilePath(relativePath, _root, _index);
 
@@ -149,13 +151,19 @@ int Response::findRouting(Request &req)
                 return _error;
             }
 
-            if (_autoindex)
+            if (_autoindex && _index.empty())
             {
                 _filePath = constructFilePath(relativePath, _root, "");
+                if (isDirectory(_filePath.c_str()))
+                    _filePath = constructFilePath(relativePath, _root, _index);
+                if (_filePath[_filePath.length() - 1] == '/') {
+                    _filePath = _filePath.substr(0, _filePath.length() - 1);
+                }
                 _isTextStream = true;
                 return CONTINUE;
             }
-
+            std::cout << "FILEPATH: " << _filePath << std::endl;
+            
             return CONTINUE;
         }
     }
@@ -312,15 +320,15 @@ void Response::genListing()
 
 
 void Response::InitFile(Request &req) {
+    _error = req.getError();
+    if (_error != 0) {
+        throw HTTPException("Request error", _error);
+    }
     int routing = findRouting(req);
     if (checkMethod(req) == ERROR)
         throw HTTPException("Method not allowed", 405);
     if (checkHttpVersion(req) == ERROR)
         throw HTTPException("HTTP version not supported", 505);
-    _error = req.getError();
-    if (_error != 0) {
-        throw HTTPException("Request error", _error);
-    }
     if (routing == 301) {
         throw HTTPException("Moved Temporarily", 302);
     }

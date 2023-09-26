@@ -25,7 +25,11 @@ if form.getvalue('color') and form.getvalue('color') != color:
 
 print("Content-Type:text/html\r\n")
 print("Server:Python HTTP Server\r\n")
-print("Set-Cookie:color=%s\r\n" % (color))
+import time
+current_date = time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime())
+print("Set-Cookie: color=%s; expires=%s; path=/;" % (color, current_date))
+print("Set-Cookie: color=red; expires=%s; path=/;" % (current_date))
+
 print("\r\n\r\n")
 bodystring = "<html><head><body style=\"background-color: %s;\"></head><body>" % (color)
 bodystring += "<h1>Welcome to my page</h1>"

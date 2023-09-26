@@ -143,6 +143,7 @@ std::map<std::string, std::string> CGI::parseCookies(std::string cookisat)
           std::string key = cookie.substr(0, pos3);
           std::string value = cookie.substr(pos3 + 1);
           _cookies[key] = value;
+          std::cout << "key: " << key << " value: " << value << std::endl;
           cookisat.erase(0, pos2 + 1);
         }
       }
