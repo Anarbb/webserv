@@ -305,8 +305,11 @@ void Response::genListing()
 
     std::stringstream ss;
     std::string location = _location.getLocationName();
-    std::string pathName = location.empty() ? findDirname(path, _root) + "/" : location + findDirname(path, _root) + "/";
-
+    std::string locationRoot = _location.getString(ROOT);
+    std::string relativePath = path.substr(locationRoot.length());
+    std::string pathName = location + relativePath;
+    if (pathName[pathName.length() - 1] != '/')
+        pathName += "/";
     ss << "<html><head><title>Index of " << pathName << "</title></head><body bgcolor=\"white\"><h1>Index of " << pathName << "</h1><hr><pre>";
 
     struct dirent *ent;
@@ -432,7 +435,7 @@ void Response::InitHeaders(Request &req)
 #ifdef __APPLE__
 int Response::sendFileData()
 {
-    off_t bytesSent = 1000000;
+    off_t bytesSent = 2048;
     int res = sendfile(_fd, _clientSocket, _offset, &bytesSent, NULL, 0);
     if (res == -1 && _offset >= _fileSize)
     {
@@ -586,7 +589,12 @@ int Response::sendResp(Request &req, CGI *cgi)
         }
         ss << "\r\n";
         _buffer = ss.str();
-        send(_clientSocket, _buffer.c_str(), _buffer.length(), 0);
+        int res = send(_clientSocket, _buffer.c_str(), _buffer.length(), 0);
+        if (res == -1)
+            _buffer = "";
+        if (res == 0 && _buffer.length() == 0)
+            _buffer = "";
+        _buffer = "";
         _headersSent = true;
     }
     if (_redirect.empty() == false)

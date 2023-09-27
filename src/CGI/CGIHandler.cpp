@@ -231,7 +231,10 @@ int CGI::executeCGIScript(int clientSocket) {
           std::string tmp = body.substr(0, pos);
           tmp += "\r\n\r\n";
           tmp +=  '\0';
-          write(fd, tmp.c_str(), tmp.size());
+          if (write(fd, tmp.c_str(), tmp.size()) <= 0) {
+            _error_code = E500;
+            return -1;
+          }
           close(fd);
           body.erase(0, pos + 4);
         }
@@ -241,7 +244,11 @@ int CGI::executeCGIScript(int clientSocket) {
     pclose(pipe);
   
     if (_fd != -1) {
-        write(_fd, body.c_str(), body.size());
+        if (write(_fd, body.c_str(), body.size()) <= 0)
+        {
+          _error_code = E500;
+          return -1;
+        }
     } else {
         _error_code = E500;
         return -1;
@@ -303,7 +310,7 @@ int CGI::CGIHandler(Request &req, Response &resp, int clientSocket)
           _error_code = 500;
         char buffer[128];
         std::string body = "";
-        while (read(fd, buffer, sizeof(buffer) - 1) != 0){
+        while (read(fd, buffer, sizeof(buffer) - 1) > 0){
           buffer[sizeof(buffer) - 1] = '\0';
           body += buffer;
         }

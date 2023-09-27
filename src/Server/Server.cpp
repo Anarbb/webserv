@@ -135,13 +135,14 @@ int Server::handleClients(fd_set& readSet, fd_set& writeSet, fd_set& masterSet) 
             } else {
                 res = _responses[clientSocket].sendResp(_requests[clientSocket], NULL);
             }
-            
+            _clients[i].lastActivity = time(NULL);
+
             if (res == DONE) {
                 closeClientConnection(clientSocket, i, masterSet);
                 res = 0; 
             }
         } 
-        if (currentTime - _clients[i].lastActivity > MAX_IDLE_TIME && res == DONE) {
+        if (currentTime - _clients[i].lastActivity > MAX_IDLE_TIME) {
             std::cout << "Client timed out" << std::endl;
             closeClientConnection(clientSocket, i, masterSet);
         }

@@ -443,7 +443,7 @@ void Request::parsseBody(size_t &_bodyPos)
         {
             if (_method == "POST" && _URI.find(".py") == std::string::npos && _URI.find(".rb") == std::string::npos)
             {
-                if (isMethodAllowed() && _bodySize <= _config.getNum(BODY_SIZE))
+                if (isMethodAllowed())
                 {
                     std::string fileName = generateRandomString();
                     std::string uplaodPath = getUploadPath();
@@ -523,6 +523,8 @@ void Request::HandelDeleteMethod()
            std::string fileName =  getfileNametodelete();
            if (remove(fileName.c_str()) != 0)
                 _error = 404;
+            else
+                _error = 204;
         }
         else 
             _error = 405; 

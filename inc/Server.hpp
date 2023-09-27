@@ -15,7 +15,7 @@
 #include "Utils.hpp"
 #include "Macros.hpp"
 # include "Config.hpp"
-# define MAX_IDLE_TIME 10
+# define MAX_IDLE_TIME 60
 
 struct Client {
 	int socket;
