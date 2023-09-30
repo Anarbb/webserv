@@ -5,7 +5,7 @@ YELLOW = \033[0;33m
 NC = \033[0m # No Color
 
 CC = c++
-CFLAGS = -Wall -Wextra -Werror -std=c++98 -g
+CFLAGS = -Wall -Wextra -Werror
 HEADERS = $(wildcard $(INC_DIR)/*.hpp)
 
 SRC_DIR = src

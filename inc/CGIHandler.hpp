@@ -2,7 +2,7 @@
 # include "Request.hpp"
 # include "Response.hpp"
 # include <fcntl.h>
-
+# include <sys/wait.h>
 #define E500 300
 #define E404 204
 #define E405 205

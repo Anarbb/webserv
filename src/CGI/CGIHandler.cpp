@@ -299,7 +299,12 @@ int CGI::CGIHandler(Request &req, Response &resp, int clientSocket)
   {
       if (WIFEXITED(_status)) {
         _status = WEXITSTATUS(_status);
-      (_error_code = RESET_ERROR_CODE + _status) && _error_code == RESET_ERROR_CODE ? _error_code = 0 : _error_code;
+      if (_status == 44) {
+        _error_code = 500;
+      }
+      else {
+        (_error_code = RESET_ERROR_CODE + _status) && _error_code == RESET_ERROR_CODE ? _error_code = 0 : _error_code;
+      }
       _isCgiDone = true;
       if (_fd == -1)
         _error_code = 500;

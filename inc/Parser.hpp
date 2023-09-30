@@ -1,6 +1,6 @@
 #pragma once
 #include "Config.hpp"
-
+#include <climits>
 typedef struct t_token{
 	std::string _type;
 	std::string _value;

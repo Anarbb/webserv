@@ -4,7 +4,7 @@
 # include <map>
 # include <ctime>
 # include <fcntl.h>
-
+# include <signal.h>
 std::map<std::string, std::string> mimeTypes = getMimeTypes();
 
 /**
@@ -16,9 +16,9 @@ std::map<std::string, std::string> mimeTypes = getMimeTypes();
  */
 Server::Server(int port, std::vector<ServerConf> &servers) : _port(port), _serverConf(servers) {
     int reuse = 1;
-    int set = 1;
     _serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     fcntl(_serverSocket, F_SETFL, O_NONBLOCK);
+    signal(SIGPIPE, SIG_IGN);
     if (_serverSocket < 0) {
         return;
     }
@@ -27,9 +27,6 @@ Server::Server(int port, std::vector<ServerConf> &servers) : _port(port), _serve
     _serverAddress.sin_port = htons(_port);
 
     if (setsockopt(_serverSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&reuse, sizeof(reuse)) < 0) {
-        return;
-    }
-    if (setsockopt(_serverSocket, SOL_SOCKET, SO_NOSIGPIPE, (void *)&set, sizeof(int)) < 0) {
         return;
     }
     if (bind(_serverSocket, (struct sockaddr*)&_serverAddress, sizeof(_serverAddress)) < 0) {
