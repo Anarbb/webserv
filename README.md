@@ -117,7 +117,7 @@ Here's a sample configuration file to help you get started:
 ```yaml
 server {
     host: "0.0.0.0"
-    listen: "80"
+    listen: "8000"
     root: "./root"
     client_body_size: "600000000"
     allow_methods: "GET","POST","DELETE"
