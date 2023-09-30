@@ -1,1 +1,0 @@
-min_range=321&max_range=12312312

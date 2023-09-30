@@ -6,7 +6,7 @@ NC = \033[0m # No Color
 
 CC = c++
 CFLAGS = -Wall -Wextra -Werror -std=c++98 -g
-LDFLAGS =
+HEADERS = $(wildcard $(INC_DIR)/*.hpp)
 
 SRC_DIR = src
 INC_DIR = inc
@@ -20,13 +20,12 @@ OBJS := $(addprefix $(OBJ_DIR)/,$(patsubst $(SRC_DIR)/%,%,$(SRCS:.cpp=.o)))
 
 all: $(BIN_DIR)/$(TARGET)
 
-# Check if the binary is up-to-date, and if not, link it.
 $(BIN_DIR)/$(TARGET): $(OBJS)
 	@mkdir -p $(BIN_DIR)
 	@$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^;
 	@printf "$(GREEN)[SUCCESS]$(NC) Compiled $@\n";
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(HEADERS)
 	@mkdir -p $(OBJ_DIR)/$(*D)
 	@$(CC) $(CFLAGS) -I$(INC_DIR) -c -o $@ $<
 	@printf "$(GREEN)[OK]$(NC) Compiled $<\n"

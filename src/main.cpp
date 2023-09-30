@@ -11,7 +11,7 @@ int main(int ac, char **av) {
     if (ac == 2)
         defFile = av[1];
     else
-        defFile = "configs/file_config.conf";
+        defFile = "configs/webserv.conf";
 
     std::vector<Server> servers;
     char *file = const_cast<char *>(defFile.c_str());

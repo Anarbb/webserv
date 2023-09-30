@@ -50,12 +50,10 @@ int Request::recvRequest() {
 	int readRes = recv(_clientSocket, buffer, sizeof(buffer) - 1, 0);
     // std::cout << "readRes: " << readRes << std::endl;
 	if (readRes == -1) {
-        std::cerr << "Error: recv() failed" << std::endl;
 		return DONE;
 	}
     // if client disconnected
 	else if (readRes == 0) {
-		std::cout << "Client disconnected" << std::endl;
 		return DISCONNECTED;
 	}
 	buffer[readRes] = '\0';
@@ -378,7 +376,7 @@ void Request::getBoundaries(size_t &_bodyPos)
 // generate a random string to name the uploaded file
 std::string Request::generateRandomString()
 {
-    const std::string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-@()^&$#";
+    const std::string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-";
 
     std::string randomFileName= "";
 

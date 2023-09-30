@@ -23,7 +23,7 @@ Server::Server(int port, std::vector<ServerConf> &servers) : _port(port), _serve
         return;
     }
     _serverAddress.sin_family = AF_INET;
-    _serverAddress.sin_addr.s_addr = htonl(INADDR_ANY);
+    _serverAddress.sin_addr.s_addr = inet_addr(_serverConf[0].getString(HOST).c_str());
     _serverAddress.sin_port = htons(_port);
 
     if (setsockopt(_serverSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&reuse, sizeof(reuse)) < 0) {
@@ -33,6 +33,7 @@ Server::Server(int port, std::vector<ServerConf> &servers) : _port(port), _serve
         return;
     }
     if (bind(_serverSocket, (struct sockaddr*)&_serverAddress, sizeof(_serverAddress)) < 0) {
+        std::cout << strerror(errno) << std::endl;
         return;
     }
 }
@@ -85,7 +86,7 @@ int Server::start(void) {
     if (listen(_serverSocket, 1024) < 0) {
         return ERROR;
     }
-    std::cout << "Server started on port: " << _port << std::endl;
+    std::cout << "Server started on: " << _serverConf[0].getString(HOST) << ":" << _port << std::endl;
 
     return OK;
 }
@@ -143,7 +144,6 @@ int Server::handleClients(fd_set& readSet, fd_set& writeSet, fd_set& masterSet) 
             }
         } 
         if (currentTime - _clients[i].lastActivity > MAX_IDLE_TIME) {
-            std::cout << "Client timed out" << std::endl;
             closeClientConnection(clientSocket, i, masterSet);
         }
     }

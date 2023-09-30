@@ -131,9 +131,15 @@ void ServerConf::setString(std::string type, std::string value)
 
 void ServerConf::setNum(std::string type, size_t value)
 {
-    if (type == "listen")
-        this->_listen = value;
-    else if (type == "client_body_size")
+    if (type == "listen") {
+        if (value > 65535)
+            throw std::runtime_error("Error: listen port is too big");
+        else if (value <= 0)
+            throw std::runtime_error("Error: listen port is too small");
+        else
+            this->_listen = value;
+    }
+    if (type == "client_body_size")
         this->_bodySize = value;
 }
 

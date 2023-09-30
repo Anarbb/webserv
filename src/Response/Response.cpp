@@ -164,7 +164,6 @@ int Response::findRouting(Request &req)
                 _isTextStream = true;
                 return CONTINUE;
             }
-            std::cout << "FILEPATH: " << _filePath << std::endl;
             
             return CONTINUE;
         }
@@ -307,25 +306,45 @@ void Response::genListing()
     std::string location = _location.getLocationName();
     std::string locationRoot = _location.getString(ROOT);
     std::string relativePath = path.substr(locationRoot.length());
-    std::string pathName = location + relativePath;
-    if (pathName[pathName.length() - 1] != '/')
-        pathName += "/";
+    std::string pathName;
+
+    if (!locationRoot.empty())
+    {
+        pathName = location + relativePath;
+
+        if (pathName[pathName.length() - 1] != '/')
+            pathName += "/";
+    }
+    else
+    {
+        pathName = "/";
+    }
+
     ss << "<html><head><title>Index of " << pathName << "</title></head><body bgcolor=\"white\"><h1>Index of " << pathName << "</h1><hr><pre>";
 
     struct dirent *ent;
+    std::vector<std::string> entries;
+
     while ((ent = readdir(dir)) != NULL)
     {
-        ss << "<a href=\"" << pathName << ent->d_name << "\">" << ent->d_name << "</a><br>";
+        entries.push_back(ent->d_name);
     }
 
     closedir(dir);
+
+    // Sort entries alphabetically
+    std::sort(entries.begin(), entries.end());
+
+    for (size_t i = 0; i < entries.size(); ++i)
+    {
+        ss << "<a href=\"" << pathName << entries[i] << "\">" << entries[i] << "</a><br>";
+    }
 
     ss << "</pre><hr></body></html>";
     _body = ss.str();
     _fileSize = _body.size();
     _isTextStream = true;
     InitHeaders(_request);
-    
 }
 
 
