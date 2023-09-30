@@ -138,7 +138,7 @@ server {
     location "/rick" {
         return: "https://www.youtube.com/watch?v=8ybW48rKBME"
     }
-     location "*.py" {
+    location "*.py" {
         allow_methods: "GET","POST"
         root: "./root/cgi-bin/"
         compiler: "/usr/bin/python3"
