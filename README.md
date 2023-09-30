@@ -114,7 +114,7 @@ The configuration file follows this grammar:
 ### Sample Configuration
 
 Here's a sample configuration file to help you get started:
-```yml
+```conf
 server {
 	host: "0.0.0.0"
 	listen: "8000"
