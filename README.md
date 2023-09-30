@@ -114,39 +114,40 @@ The configuration file follows this grammar:
 ### Sample Configuration
 
 Here's a sample configuration file to help you get started:
-```conf
+```yaml
 server {
-	host: "0.0.0.0"
-	listen: "8000"
-	root: "./root"
-	client_body_size: "600000000"
-	allow_methods: "GET","POST","DELETE"
-	upload_path: "./upload"
-	error_page: "404","./errors/404.html","500","./errors/404.html"
-	server_name: "main"
-	location "/cgi" {
-		allow_methods: "GET","POST"
-		root: "./root/cgi-bin"
-		autoindex: "on"
-	}
-	location "/msmen" {
-		allow_methods: "GET"
-		root: "./root/msmen"
-		index: "index.html"
-	}
-	location "/rick" {
-		return: "https://www.youtube.com/watch?v=8ybW48rKBME"
-	}
-	location "*.py" {
-		allow_methods: "GET","POST"
-		root: "./root/cgi-bin/"
-		compiler: "/usr/local/bin/python3.9"
-	}
-	location "*.rb" {
-		allow_methods: "GET","POST"
-		root: "./root/cgi-bin"
-		compiler: "/usr/bin/ruby"
-	}
+    host: "0.0.0.0"
+    listen: "80"
+    root: "./root"
+    client_body_size: "600000000"
+    allow_methods: "GET","POST","DELETE"
+    upload_path: "./upload"
+    error_page: "404","./errors/404.html","500","./errors/404.html"
+    index: "index.html"
+    server_name: "main"
+    location "/cgi" {
+        allow_methods: "GET","POST"
+        root: "./root/cgi-bin"
+        autoindex: "on"
+    }
+    location "/msmen" {
+        allow_methods: "GET"
+        root: "./root/msmen"
+        index: "index.html"
+    }
+    location "/rick" {
+        return: "https://www.youtube.com/watch?v=8ybW48rKBME"
+    }
+     location "*.py" {
+        allow_methods: "GET","POST"
+        root: "./root/cgi-bin/"
+        compiler: "/usr/bin/python3"
+    }
+    location "*.rb" {
+        allow_methods: "GET","POST"
+        root: "./root/cgi-bin"
+        compiler: "/usr/bin/ruby"
+    }
 }
 ```
 ### Configuration Options
